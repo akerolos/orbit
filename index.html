@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORBIT — Explore Beyond Limits | Cinematic 3D Space Exploration</title>
+  <meta name="description" content="Immerse in the next era of human spaceflight. Explore distant exoplanets, luxury orbital transit, and deep space discovery with ORBIT.">
+  <meta name="theme-color" content="#030508">
+
+  <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="is-loading">
+
+  <!-- ========================================================
+       PRELOADER / TELEMETRY BOOTSTRAP
+       ======================================================== -->
+  <div id="preloader" class="preloader" aria-label="System Initializing" role="status">
+    <div class="preloader-inner">
+      <div class="preloader-brand">
+        <svg class="preloader-logo-svg" viewBox="0 0 80 80" width="64" height="64" fill="none">
+          <circle cx="40" cy="40" r="14" fill="#00f0ff" fill-opacity="0.25" stroke="#00f0ff" stroke-width="1.5" />
+          <ellipse cx="40" cy="40" rx="34" ry="12" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="4 3" class="preloader-orbit-ring" transform="rotate(-25 40 40)" />
+          <circle cx="68" cy="28" r="3.5" fill="#00f0ff" class="preloader-satellite" />
+        </svg>
+        <span class="preloader-title">ORBIT</span>
+        <span class="preloader-subtitle">EXPLORE BEYOND LIMITS</span>
+      </div>
+      <div class="preloader-bar-wrap">
+        <div class="preloader-bar">
+          <div class="preloader-progress" id="preloader-progress"></div>
+        </div>
+      </div>
+      <div class="preloader-telemetry">
+        <span id="preloader-status">INITIALIZING OPTICAL SENSORS...</span>
+        <span id="preloader-percent" class="mono">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       CUSTOM PRECISION CURSOR
+       ======================================================== -->
+  <div id="custom-cursor" class="custom-cursor" aria-hidden="true">
+    <div id="cursor-dot" class="cursor-dot"></div>
+    <div id="cursor-ring" class="cursor-ring"></div>
+  </div>
+
+  <!-- ========================================================
+       THREE.JS WEBGL CANVAS (Hero & Celestial Background)
+       ======================================================== -->
+  <canvas id="webgl-canvas" class="webgl-canvas" aria-hidden="true"></canvas>
+
+  <!-- ========================================================
+       TOP NAVIGATION BAR
+       ======================================================== -->
+  <header class="navbar-wrapper">
+    <nav class="navbar" aria-label="Main Navigation">
+      <div class="nav-container">
+        <!-- Brand Logo -->
+        <a href="#" class="brand-logo" aria-label="ORBIT Home">
+          <svg class="logo-icon" viewBox="0 0 40 40" width="28" height="28" fill="none">
+            <circle cx="20" cy="20" r="7" fill="#00f0ff" fill-opacity="0.3" stroke="#00f0ff" stroke-width="1.4" />
+            <ellipse cx="20" cy="20" rx="17" ry="6" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.85" transform="rotate(-25 20 20)" />
+            <circle cx="33" cy="14" r="2" fill="#00f0ff" />
+          </svg>
+          <div class="brand-text">
+            <span class="brand-name">ORBIT</span>
+            <span class="brand-tag">EXPEDITIONS</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <ul class="nav-links" role="list">
+          <li><a href="#series" class="nav-link">Series</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+        </ul>
+
+        <!-- Nav Controls: Audio Synth & Booking CTA -->
+        <div class="nav-actions">
+          <button id="audio-toggle-btn" class="audio-toggle" aria-label="Toggle Cosmic Audio Synth" title="Synthesized deep space soundscape">
+            <span class="audio-wave" id="audio-wave">
+              <i></i><i></i><i></i><i></i>
+            </span>
+            <span id="audio-toggle-label" class="mono">AUDIO: OFF</span>
+          </button>
+
+          <button class="btn btn-booking open-booking-modal magnetic-btn" aria-haspopup="dialog">
+            <span class="beacon-dot"></span>
+            <span>BOOKING OPEN</span>
+          </button>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button id="menu-toggle" class="menu-toggle" aria-label="Toggle Mobile Menu" aria-expanded="false" aria-controls="mobile-drawer">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========================================================
+       MOBILE NAVIGATION DRAWER
+       ======================================================== -->
+  <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <span class="drawer-title mono">// NAVIGATION SECTOR</span>
+    </div>
+    <ul class="drawer-links" role="list">
+      <li><a href="#series" class="drawer-link">01 // Series</a></li>
+      <li><a href="#features" class="drawer-link">02 // Features</a></li>
+      <li><a href="#how-it-works" class="drawer-link">03 // How It Works</a></li>
+      <li><a href="#about" class="drawer-link">04 // About</a></li>
+    </ul>
+    <div class="drawer-footer">
+      <button class="btn btn-primary open-booking-modal w-full">RESERVE EXPEDITION</button>
+      <div class="drawer-telemetry mono">
+        <span>ORBIT TELEMETRY: ACTIVE</span>
+        <span id="drawer-clock">UTC 00:00:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MAIN PAGE CONTENT
+       ======================================================== -->
+  <main id="main-content">
+
+    <!-- ======================================================
+         SECTION 1: HERO SECTION — THE MAIN EXPERIENCE
+         ====================================================== -->
+    <section class="hero" id="hero" aria-label="Hero Space Exploration Experience">
+      <!-- HUD Subtle Grid Overlays & Corner Brackets -->
+      <div class="hud-frame" aria-hidden="true">
+        <div class="hud-corner top-left"></div>
+        <div class="hud-corner top-right"></div>
+        <div class="hud-corner bottom-left"></div>
+        <div class="hud-corner bottom-right"></div>
+        <div class="hud-axis-x"></div>
+        <div class="hud-axis-y"></div>
+      </div>
+
+      <div class="hero-container">
+        <!-- TOP HUD SYSTEM STRIP -->
+        <div class="hero-system-strip mono">
+          <div class="strip-item">
+            <span class="indicator-green"></span>
+            <span>SYS: OPTIMAL</span>
+          </div>
+          <div class="strip-item">
+            <span>TRAJECTORY: HIGH-APOGEE</span>
+          </div>
+          <div class="strip-item hide-mobile">
+            <span id="hud-utc-clock">00:00:00 UTC</span>
+          </div>
+          <div class="strip-item hide-mobile">
+            <span>PING: <span id="hud-signal">52ms // STABLE</span></span>
+          </div>
+        </div>
+
+        <!-- HERO EDITORIAL GRID LAYOUT -->
+        <div class="hero-grid">
+
+          <!-- LEFT SIDE: Main Headline & Primary CTA -->
+          <div class="hero-left">
+            <div class="section-tag mono">
+              <span class="tag-accent">//</span> MISSION SERIES 07
+            </div>
+            <h1 class="hero-title">
+              Explore the <br>
+              <span class="text-glow">wonder of</span> <br>
+              universe
+            </h1>
+            <p class="hero-description">
+              Venture into the cosmic frontier aboard our vanguard orbital cruisers. Experience the breathtaking curvature of worlds unknown and navigate the silent grandeur of deep space.
+            </p>
+            <div class="hero-actions">
+              <a href="#series" class="btn btn-primary magnetic-btn" id="hero-explore-btn">
+                <span>Explore</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+              <button class="btn btn-secondary open-booking-modal magnetic-btn">
+                <span>Flight Roster</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- RIGHT SIDE: Secondary Headline & Planet Preview Panel -->
+          <div class="hero-right">
+            <div class="hero-subpanel glass-panel">
+              <div class="panel-header mono">
+                <span class="panel-badge">EXOPLANET INTEL</span>
+                <span class="panel-code">SEC-09</span>
+              </div>
+              <h2 class="hero-secondary-title">
+                Explore the Infinite Horizons of Space
+              </h2>
+              <p class="hero-secondary-desc">
+                Unprecedented observation vectors into distant stellar phenomena. Our quantum telemetry maps pristine celestial coordinates in real time.
+              </p>
+              
+              <!-- Newly Discovered Planet Mini Card -->
+              <div class="mini-planet-card">
+                <div class="mini-planet-graphic">
+                  <div class="mini-orbiter-glow"></div>
+                  <img src="assets/images/planet_kepler.jpg" alt="AEX-79 Terrestrial Exoplanet" class="mini-planet-thumb" width="48" height="48">
+                </div>
+                <div class="mini-planet-meta mono">
+                  <div class="mini-planet-name">AEX-79 [TERRESTRIAL]</div>
+                  <div class="mini-planet-stats">ORBIT: 382D | HAB: 94.2%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM LEFT: Perspective Copy & Coordinates -->
+          <div class="hero-bottom-left">
+            <div class="bottom-panel-content">
+              <div class="bottom-accent-line"></div>
+              <h3 class="hero-bottom-title">Broaden Your Perspective</h3>
+              <p class="hero-bottom-desc">
+                Step beyond planetary boundaries. Witness the cosmic tapestry unfurl from high-apogee observation lounges designed for boundless wonder.
+              </p>
+            </div>
+          </div>
+
+          <!-- BOTTOM RIGHT: Secondary Planet & Decorative HUD Coordinates -->
+          <div class="hero-bottom-right">
+            <div class="technical-hud-panel glass-panel mono">
+              <div class="hud-panel-title">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="#00f0ff" stroke-width="2" fill="none">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="22" y1="12" x2="18" y2="12"></line>
+                  <line x1="6" y1="12" x2="2" y2="12"></line>
+                  <line x1="12" y1="6" x2="12" y2="2"></line>
+                  <line x1="12" y1="22" x2="12" y2="18"></line>
+                </svg>
+                <span>CELESTIAL RADIAL VECTOR</span>
+              </div>
+              <div class="hud-coord-row">
+                <span class="coord-label">R.A.</span>
+                <span class="coord-val" id="hud-ra">19h 44m 58.42s</span>
+              </div>
+              <div class="hud-coord-row">
+                <span class="coord-label">DEC.</span>
+                <span class="coord-val" id="hud-dec">+50° 05′ 49.1″</span>
+              </div>
+              <div class="hud-coord-row">
+                <span class="coord-label">VECTOR</span>
+                <span class="coord-val">4.244 LIGHT YEARS</span>
+              </div>
+              <div class="hud-note-text">
+                * Conceptual navigational telemetry interface
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="hero-scroll-indicator" aria-hidden="true">
+          <a href="#series" class="scroll-link" aria-label="Scroll to discover planets">
+            <span class="scroll-mouse">
+              <span class="scroll-wheel"></span>
+            </span>
+            <span class="scroll-text mono">SCROLL TO DISCOVER</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SECTION 2: PLANETARY DISCOVERIES ("Discover New Worlds")
+         ====================================================== -->
+    <section class="section planets-section" id="series" aria-labelledby="planets-heading">
+      <div class="container">
+        <!-- Section Header -->
+        <div class="section-header reveal">
+          <div class="section-tag mono">
+            <span class="tag-accent">//</span> CATALOGUED EXPEDITIONS
+          </div>
+          <h2 class="section-title" id="planets-heading">
+            Discover <span class="text-glow">New Worlds</span>
+          </h2>
+          <p class="section-lead">
+            Pristine exoplanetary destinations chartered for civilian observation and deep scientific exploration voyages.
+          </p>
+        </div>
+
+        <!-- Planet Cards Collection Grid -->
+        <div class="planets-grid">
+
+          <!-- Card 1: Kepler-452b -->
+          <article class="planet-card glass-panel reveal" data-card="kepler">
+            <div class="card-visual-wrapper">
+              <div class="card-visual-halo"></div>
+              <img src="assets/images/planet_kepler.jpg" alt="Kepler-452b Oceania Prime" class="planet-img" loading="lazy" width="400" height="400">
+              <div class="card-badge mono">CLASS: TERRESTRIAL</div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta mono">1,402 LIGHT-YEARS // CYGNUS</div>
+              <h3 class="planet-name">Kepler-452b</h3>
+              <p class="planet-desc">
+                An oceanic super-Earth cloaked in sapphire waters and dense ozone, boasting magnificent orbital sunrises and mild maritime climates.
+              </p>
+              <div class="planet-specs mono">
+                <div class="spec-item">
+                  <span class="spec-label">GRAVITY</span>
+                  <span class="spec-val">1.12 G</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">SURFACE TEMP</span>
+                  <span class="spec-val">14°C</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">PERIOD</span>
+                  <span class="spec-val">384.8 D</span>
+                </div>
+              </div>
+              <button class="btn btn-card-action discover-planet-btn magnetic-btn" data-planet="kepler" aria-haspopup="dialog">
+                <span>Discover</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 2: Aurelia-VI -->
+          <article class="planet-card glass-panel reveal" data-card="aurelia">
+            <div class="card-visual-wrapper">
+              <div class="card-visual-halo"></div>
+              <img src="assets/images/planet_aurelia.jpg" alt="Aurelia-VI Ringed Gas Giant" class="planet-img" loading="lazy" width="400" height="400">
+              <div class="card-badge mono">CLASS: GAS GIANT</div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta mono">38.6 LIGHT-YEARS // CENTAURI</div>
+              <h3 class="planet-name">Aurelia-VI</h3>
+              <p class="planet-desc">
+                Spectacular crystalline ice rings spanning 240,000 km that reflect stellar light in shimmering auroral cascades across violent purple cloud belts.
+              </p>
+              <div class="planet-specs mono">
+                <div class="spec-item">
+                  <span class="spec-label">GRAVITY</span>
+                  <span class="spec-val">0.94 G</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">SURFACE TEMP</span>
+                  <span class="spec-val">-48°C</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">RINGS</span>
+                  <span class="spec-val">CRYO-ICE</span>
+                </div>
+              </div>
+              <button class="btn btn-card-action discover-planet-btn magnetic-btn" data-planet="aurelia" aria-haspopup="dialog">
+                <span>Discover</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 3: Proxima Centauri b -->
+          <article class="planet-card glass-panel reveal" data-card="proxima">
+            <div class="card-visual-wrapper">
+              <div class="card-visual-halo"></div>
+              <img src="assets/images/planet_proxima.jpg" alt="Proxima Centauri b Twilight Frontier" class="planet-img" loading="lazy" width="400" height="400">
+              <div class="card-badge mono">CLASS: TIDAL LOCK</div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta mono">4.24 LIGHT-YEARS // ALPHA CEN</div>
+              <h3 class="planet-name">Proxima Centauri b</h3>
+              <p class="planet-desc">
+                Our nearest interstellar neighbor, locked in eternal dusk along its planetary terminator ribbon, glowing warmly under crimson red dwarf starlight.
+              </p>
+              <div class="planet-specs mono">
+                <div class="spec-item">
+                  <span class="spec-label">GRAVITY</span>
+                  <span class="spec-val">1.08 G</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">SURFACE TEMP</span>
+                  <span class="spec-val">-39°C</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">PERIOD</span>
+                  <span class="spec-val">11.2 D</span>
+                </div>
+              </div>
+              <button class="btn btn-card-action discover-planet-btn magnetic-btn" data-planet="proxima" aria-haspopup="dialog">
+                <span>Discover</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 4: Gliese 667Cc -->
+          <article class="planet-card glass-panel reveal" data-card="gliese">
+            <div class="card-visual-wrapper">
+              <div class="card-visual-halo"></div>
+              <img src="assets/images/planet_gliese.jpg" alt="Gliese 667Cc The Luminary" class="planet-img" loading="lazy" width="400" height="400">
+              <div class="card-badge mono">CLASS: TRIPLE SUN</div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta mono">23.6 LIGHT-YEARS // SCORPIUS</div>
+              <h3 class="planet-name">Gliese 667Cc</h3>
+              <p class="planet-desc">
+                Bioluminescent tectonic fractures and triple-star sunsets cast endless indigo horizons across this high-density super-Earth biosphere sanctuary.
+              </p>
+              <div class="planet-specs mono">
+                <div class="spec-item">
+                  <span class="spec-label">GRAVITY</span>
+                  <span class="spec-val">1.34 G</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">SURFACE TEMP</span>
+                  <span class="spec-val">4.5°C</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">SOLAR</span>
+                  <span class="spec-val">TRINARY</span>
+                </div>
+              </div>
+              <button class="btn btn-card-action discover-planet-btn magnetic-btn" data-planet="gliese" aria-haspopup="dialog">
+                <span>Discover</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </button>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SECTION 3: SPACE MISSIONS ("Beyond The Known")
+         ====================================================== -->
+    <section class="section missions-section" id="features" aria-labelledby="missions-heading">
+      <div class="container">
+        <!-- Section Header -->
+        <div class="section-header reveal">
+          <div class="section-tag mono">
+            <span class="tag-accent">//</span> DEEP EXPEDITIONS
+          </div>
+          <h2 class="section-title" id="missions-heading">
+            Beyond <span class="text-glow">The Known</span>
+          </h2>
+          <p class="section-lead">
+            Flagship exploration architecture engineered for long-duration interplanetary transit and cosmic observation.
+          </p>
+        </div>
+
+        <!-- Featured Mission Showcase Card -->
+        <div class="mission-showcase glass-panel reveal">
+          <div class="mission-showcase-visual">
+            <img src="assets/images/spacecraft_mission.jpg" alt="ORBIT Vanguard-IV Deep Recon Cruiser" class="mission-visual-img" loading="lazy" width="900" height="506">
+            <div class="mission-visual-overlay">
+              <div class="reticle-target mono">
+                <div class="reticle-box"></div>
+                <span>TRACKING: VANGUARD-IV // ORBITAL INCLINATION 14.8°</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mission-showcase-content">
+            <div class="mission-header mono">
+              <span class="mission-code">VESSEL // VANGUARD-IV</span>
+              <span class="status-pill"><span class="pulse-beacon"></span> ACTIVE TRANSIT</span>
+            </div>
+            <h3 class="mission-headline">Deep Interstellar Recon Cruiser</h3>
+            <p class="mission-body">
+              Designed for extended multi-year voyages, Vanguard-IV incorporates advanced magnetic radiation shielding, rotating artificial gravity habitations, and dual ion-fusion thrusters capable of sustainable sub-relativistic speeds.
+            </p>
+
+            <!-- Mission Statistics Grid -->
+            <div class="mission-stats-grid mono">
+              <div class="stat-card">
+                <span class="stat-label">EXPEDITION DISTANCE</span>
+                <span class="stat-number">48.6 AU</span>
+                <span class="stat-note">Kuiper Belt Crossing</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">SUSTAINED VELOCITY</span>
+                <span class="stat-number">0.14 c</span>
+                <span class="stat-note">~41,970 km/sec</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">FLIGHT DURATION</span>
+                <span class="stat-number">22 MONTHS</span>
+                <span class="stat-note">Standard Orbital Time</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">CREW CAPACITY</span>
+                <span class="stat-number">6 SPECIALISTS</span>
+                <span class="stat-note">Astrophysics Roster</span>
+              </div>
+            </div>
+
+            <div class="mission-actions">
+              <button class="btn btn-primary discover-mission-btn magnetic-btn" id="discover-mission-btn" aria-haspopup="dialog">
+                <span>Discover Mission</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+              <div class="mission-disclaimer mono">
+                * All mission metrics represent proprietary conceptual flight architecture.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar Features Row -->
+        <div class="features-row">
+          <div class="feature-col glass-panel reveal">
+            <div class="feature-index mono">01</div>
+            <h4 class="feature-title">Rotational Gravity Habitats</h4>
+            <p class="feature-desc">Continuous 0.85G centripetal living modules ensuring physiological comfort during months-long deep transits.</p>
+          </div>
+          <div class="feature-col glass-panel reveal">
+            <div class="feature-index mono">02</div>
+            <h4 class="feature-title">Quantum Telemetry HUD</h4>
+            <p class="feature-desc">Real-time stellar ephemeris triangulation with sub-millimeter relativistic precision.</p>
+          </div>
+          <div class="feature-col glass-panel reveal">
+            <div class="feature-index mono">03</div>
+            <h4 class="feature-title">Panoramic Observation Dome</h4>
+            <p class="feature-desc">Single-crystal sapphire crystal viewing ports offering 360-degree unhindered celestial vistas.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SECTION 4: HOW IT WORKS
+         ====================================================== -->
+    <section class="section steps-section" id="how-it-works" aria-labelledby="steps-heading">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-tag mono">
+            <span class="tag-accent">//</span> EXPEDITION PROTOCOL
+          </div>
+          <h2 class="section-title" id="steps-heading">
+            How It <span class="text-glow">Works</span>
+          </h2>
+          <p class="section-lead">
+            The path from terrestrial origin to deep-space observer.
+          </p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card glass-panel reveal">
+            <div class="step-num mono">PHASE 01</div>
+            <h3 class="step-title">Medical & High-G Certification</h3>
+            <p class="step-desc">Comprehensive cardiovascular and vestibular testing conducted at our high-altitude training complex.</p>
+          </div>
+
+          <div class="step-card glass-panel reveal">
+            <div class="step-num mono">PHASE 02</div>
+            <h3 class="step-title">Zero-G Immersion Training</h3>
+            <p class="step-desc">Neutral-buoyancy maneuvers and VR simulated spacewalk drills to prepare you for true microgravity operation.</p>
+          </div>
+
+          <div class="step-card glass-panel reveal">
+            <div class="step-num mono">PHASE 03</div>
+            <h3 class="step-title">Orbital Docking & Transit</h3>
+            <p class="step-desc">Launch aboard our shuttle to the orbital Gateway Station, transitioning to the Vanguard deep-space cruiser.</p>
+          </div>
+
+          <div class="step-card glass-panel reveal">
+            <div class="step-num mono">PHASE 04</div>
+            <h3 class="step-title">Boundless Observation</h3>
+            <p class="step-desc">Voyage through targeted orbital trajectories, witnessing exoplanetary wonders from luxury observation suites.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SECTION 5: ABOUT ORBIT
+         ====================================================== -->
+    <section class="section about-section" id="about" aria-labelledby="about-heading">
+      <div class="container">
+        <div class="about-card glass-panel reveal">
+          <div class="about-grid">
+            <div class="about-content">
+              <div class="section-tag mono">
+                <span class="tag-accent">//</span> HUMANITY’S NEXT FRONTIER
+              </div>
+              <h2 class="about-title" id="about-heading">
+                Pioneering the Modern Renaissance of Space Exploration
+              </h2>
+              <p class="about-body">
+                Founded on the conviction that the cosmos should not merely be observed from afar, but experienced in vivid, poetic reality. ORBIT fuses aerospace precision, luxury ergonomics, and cutting-edge propulsion to create unprecedented voyages beyond our solar system.
+              </p>
+              <div class="about-stats mono">
+                <div class="about-stat-item">
+                  <span class="stat-big">100%</span>
+                  <span class="stat-caption">REDUNDANT LIFE SYSTEMS</span>
+                </div>
+                <div class="about-stat-item">
+                  <span class="stat-big">4.24</span>
+                  <span class="stat-caption">LIGHT-YEARS REACH</span>
+                </div>
+                <div class="about-stat-item">
+                  <span class="stat-big">ZERO</span>
+                  <span class="stat-caption">EMISSION FUSION CORRIDOR</span>
+                </div>
+              </div>
+            </div>
+            <div class="about-quote-box">
+              <div class="quote-symbol">“</div>
+              <blockquote class="quote-text">
+                To venture into deep space is not to flee our origin, but to discover the infinite context in which our world exists.
+              </blockquote>
+              <cite class="quote-author mono">— ORBIT FLIGHT MANIFESTO // 2026</cite>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================
+       FOOTER SECTION
+       ======================================================== -->
+  <footer class="footer reveal" id="footer" aria-label="Site Footer">
+    <div class="footer-ambient-glow" aria-hidden="true"></div>
+    <div class="container footer-container">
+      
+      <!-- Big Atmospheric Closing Phrase -->
+      <div class="footer-callout">
+        <div class="footer-tag mono">// THE NEXT HORIZON</div>
+        <h2 class="footer-big-title">The Universe Is Waiting</h2>
+        <p class="footer-subtitle">Step across the boundary of tomorrow. Your journey into the silent wonders of the cosmos starts now.</p>
+        <button class="btn btn-primary open-booking-modal magnetic-btn">
+          <span>Begin Your Journey</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="footer-divider"></div>
+
+      <!-- Footer Navigation Grid -->
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <div class="footer-brand">
+            <svg class="logo-icon" viewBox="0 0 40 40" width="32" height="32" fill="none">
+              <circle cx="20" cy="20" r="7" fill="#00f0ff" fill-opacity="0.3" stroke="#00f0ff" stroke-width="1.4" />
+              <ellipse cx="20" cy="20" rx="17" ry="6" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.85" transform="rotate(-25 20 20)" />
+              <circle cx="33" cy="14" r="2" fill="#00f0ff" />
+            </svg>
+            <span class="footer-brand-title">ORBIT</span>
+          </div>
+          <p class="footer-tagline">Explore Beyond Limits. The definitive front-end luxury space exploration experience.</p>
+          <div class="footer-telemetry mono">
+            <span>ORIGIN: SOL-3 // EARTH ORBIT</span>
+            <span>STATUS: NOMINAL</span>
+          </div>
+        </div>
+
+        <div class="footer-links-col">
+          <h4 class="footer-heading mono">// DESTINATIONS</h4>
+          <ul class="footer-list">
+            <li><a href="#series">Kepler-452b Oceania</a></li>
+            <li><a href="#series">Aurelia-VI Cryo Rings</a></li>
+            <li><a href="#series">Proxima Centauri b</a></li>
+            <li><a href="#series">Gliese 667Cc Luminary</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <h4 class="footer-heading mono">// MISSIONS</h4>
+          <ul class="footer-list">
+            <li><a href="#features">Vanguard-IV Survey</a></li>
+            <li><a href="#how-it-works">High-G Certification</a></li>
+            <li><a href="#how-it-works">Zero-G Immersion</a></li>
+            <li><a href="#about">Flight Architecture</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <h4 class="footer-heading mono">// PROTOCOLS</h4>
+          <ul class="footer-list">
+            <li><a href="#booking" class="open-booking-modal">Expedition Booking</a></li>
+            <li><a href="#about">Safety Redundancies</a></li>
+            <li><a href="#about">Scientific Research</a></li>
+            <li><a href="#about">Privacy & Telemetry</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Copyright & Technical Disclaimer -->
+      <div class="footer-bottom mono">
+        <div class="copyright">
+          © 2026 ORBIT CORPORATION. ALL FLIGHT DATA & TELEMETRIES ARE CONCEPTUAL DESIGN SPECIFICATIONS.
+        </div>
+        <div class="footer-coords">
+          RA 19h 44m 58s | DEC +50° 05′ 49″ // SOL-SYSTEM
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ========================================================
+       MODAL: EXPEDITION BOOKING DIALOG
+       ======================================================== -->
+  <dialog id="booking-modal" class="modal-dialog glass-panel" aria-labelledby="booking-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-badge mono">// EXPEDITION MANIFEST</div>
+        <button id="close-booking-modal" class="btn-close-modal" aria-label="Close booking modal">✕</button>
+      </div>
+
+      <div id="booking-form-wrap">
+        <h3 id="booking-modal-title" class="modal-title">Reserve Orbital Flight</h3>
+        <p class="modal-subtitle">Submit your mission application for the 2026–2027 deep space transit series.</p>
+
+        <form id="booking-form" class="booking-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="traveler-name" class="form-label mono">PASSENGER CALLSIGN / NAME</label>
+              <input type="text" id="traveler-name" class="form-input" placeholder="e.g. Commander Sarah Vance" required>
+            </div>
+            <div class="form-group">
+              <label for="traveler-email" class="form-label mono">QUANTUM COMM / EMAIL</label>
+              <input type="email" id="traveler-email" class="form-input" placeholder="commander@orbit.space" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="destination-select" class="form-label mono">DESTINATION SECTOR</label>
+              <select id="destination-select" class="form-input" required>
+                <option value="kepler">Kepler-452b // Oceania Prime (1,402 LY)</option>
+                <option value="aurelia">Aurelia-VI // Cryo Ring System (38.6 LY)</option>
+                <option value="proxima">Proxima Centauri b // Twilight Frontier (4.24 LY)</option>
+                <option value="gliese">Gliese 667Cc // The Luminary (23.6 LY)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tier-select" class="form-label mono">MISSION TIER</label>
+              <select id="tier-select" class="form-input" required>
+                <option value="suite">Astral Observation Suite (Private)</option>
+                <option value="scientific">Scientific Specialist Roster</option>
+                <option value="first">Vanguard First Class Orbital</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full magnetic-btn">
+            <span>CONFIRM EXPEDITION RESERVATION</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </form>
+
+        <div id="booking-confirmation" class="booking-confirmation hidden">
+          <div class="confirm-icon">
+            <svg viewBox="0 0 24 24" width="48" height="48" stroke="#00f0ff" stroke-width="2" fill="none">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <h4 class="confirm-title">TRANSMISSION CONFIRMED</h4>
+          <p class="confirm-desc">Your mission dossier has been encrypted and routed to the ORBIT Flight Committee. Expect a biometric verification packet via secure quantum comms shortly.</p>
+          <div class="confirm-code mono">FLIGHT TOKEN: ORB-2026-X9924 // SECTOR ALPHA</div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================================
+       MODAL: PLANET DEEP SCAN TELEMETRY
+       ======================================================== -->
+  <dialog id="planet-modal" class="modal-dialog glass-panel" aria-labelledby="planet-modal-name">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-badge mono">// DEEP SPECTRAL SCAN</div>
+        <button id="close-planet-modal" class="btn-close-modal" aria-label="Close planet modal">✕</button>
+      </div>
+      <div class="planet-modal-body">
+        <div class="planet-modal-hero">
+          <img id="planet-modal-img" src="" alt="Exoplanet Telemetry" class="planet-modal-thumb" width="220" height="220">
+          <div class="planet-modal-meta">
+            <h3 id="planet-modal-name" class="modal-title">Planet Name</h3>
+            <div id="planet-modal-class" class="planet-modal-badge mono">CLASS</div>
+            <div class="planet-modal-specs mono">
+              <div>DISTANCE: <span id="planet-modal-distance" class="text-glow">-</span></div>
+              <div>SURFACE GRAVITY: <span id="planet-modal-gravity">-</span></div>
+              <div>EQUILIBRIUM TEMP: <span id="planet-modal-temp">-</span></div>
+              <div>ORBITAL PERIOD: <span id="planet-modal-period">-</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="planet-modal-atmosphere mono">
+          <div class="modal-subheading">// ATMOSPHERIC COMPOSITION</div>
+          <div id="planet-modal-atmosphere" class="text-slate">-</div>
+        </div>
+        <div class="planet-modal-text">
+          <p id="planet-modal-description" class="modal-subtitle">-</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary open-booking-modal w-full">RESERVE EXPEDITION TO THIS WORLD</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================================
+       MODAL: MISSION DEEP SCAN
+       ======================================================== -->
+  <dialog id="mission-modal" class="modal-dialog glass-panel" aria-labelledby="mission-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-badge mono">// VANGUARD-IV FLIGHT ARCHITECTURE</div>
+        <button id="close-mission-modal" class="btn-close-modal" aria-label="Close mission modal">✕</button>
+      </div>
+      <div class="mission-modal-body">
+        <h3 id="mission-modal-title" class="modal-title">Interstellar Vanguard-IV Specifications</h3>
+        <p class="modal-subtitle">Comprehensive structural, propulsion, and crew telemetry for our flagship exploration cruiser.</p>
+        <div class="mission-modal-grid mono">
+          <div class="m-card">
+            <span class="m-label">PROPULSION</span>
+            <span class="m-val">Dual Magnetic Ion-Fusion Drives</span>
+          </div>
+          <div class="m-card">
+            <span class="m-label">RADIATION SHIELD</span>
+            <span class="m-val">Active Superconducting Magnetosphere</span>
+          </div>
+          <div class="m-card">
+            <span class="m-label">HULL COMPOSITION</span>
+            <span class="m-val">Graphene-Reinforced Titanium Honeycomb</span>
+          </div>
+          <div class="m-card">
+            <span class="m-label">LIFE SUPPORT</span>
+            <span class="m-val">Closed-Loop Hydroponic Biosphere</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary open-booking-modal w-full">REQUEST MISSION DOSSIER</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================================
+       SCRIPTS: Vendor Three.js & Application Controllers
+       ======================================================== -->
+  <script src="js/vendor/three.min.js"></script>
+  <script src="js/vendor/GLTFLoader.js"></script>
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/ScrollTrigger.min.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
